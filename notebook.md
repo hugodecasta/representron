@@ -41,22 +41,82 @@ The first step is to try to compress the data
  * Seq 1 : `aaaBBBBaaaBBBB`
    * compression 1 : `a` x 3, `B` x 4, `a` x 3, `B` x 4
    * compression 1 ids : `r1`, `r2`, `r1`, `r2`
-   * compression 2 : `r1 -> r2` x 2
+   * compression 2 : `r1 r2` x 2
    * compression 2 ids : `R1`
  * Seq 2 : `sssFFFFsssFFFF`
    * compression 1 : `s` x 3, `F` x 4, `s` x 3, `F` x 4
    * compression 1 ids : `r1`, `r2`, `r1`, `r2`
-   * compression 2 : `r1 -> r2` x 2
+   * compression 2 : `r1 r2` x 2
    * compression 2 ids : `R1`
 
 Let's compare the rules:
- * `Seq1.r1` = `Seq2.r1` --> `[ FAIL ]`
+ * `Sys.r1` = `Seq2.r1` --> `[ FAIL ]`
    * Generalize the rules : `(a or s)` x 3
- * `Seq1.r2` = `Seq2.r2` --> `[ FAIL ]`
+ * `Sys.r2` = `Seq2.r2` --> `[ FAIL ]`
    * Generalize the rules : `(B or F)` x 4
- * `Seq1.R1` = `Seq2.R1` --> `[ PASS ]`
+ * `Sys.R1` = `Seq2.R1` --> `[ PASS ]`
 
 The final rules are:
  * `r1` : `(a or s)` x 3
  * `r2` : `(B or F)` x 4
- * `R1` : `r1 -> r2` x 2
+ * `R1` : `r1 r2` x 2
+
+Now a third very different sequence appears:
+
+ * Seq 3 : `aaabbbcccFFFaaabbbccc`
+   * compression 1 : `a` x 3, `b` x 3, `c` x 3, `F` x 3
+   * compression 1 ids : `r1`, `r2`, `r3`, `r4`
+   * sub-seq : `r1 r2 r3 r4 r1 r2 r3`
+   * compression 2 : `r1 r2 r3` & `r4` & `r1 r2 r3`
+   * compression 2 ids : `R1`, `R2`, `R1`
+
+Something interesting we can pull out from these examples is that we can distinguish 2 types of rules
+ * The repetition rule : `a` x 3
+ * The successing rule : `a -> b -> c -> ...`
+
+As the begining sequence is only a repetition rule we can alternate the rule understanding by finding first the repetition, until no ne repetition exists, then find the succession, and repeat the process till no ne rule are added.
+
+### repetition detection
+
+ * Seq 1 : `coucou coucou`
+   * repetition : `coucou` x 1 , `coucou` x 1
+   * succession : `r1 -> r1`
+   * repetition : `r1` x 2
+
+Finally, the "succession" step is only a re-symbolisation of the sequence using the defined rules ids. The repetition step is in fact a step where the system find episodes in the segment. It must find rules linking those episods. One episod can be represented as an augmented network (graph).
+
+ * Seq 1 : `coucou coucou`
+   * episods : `-> c o u (restart x 2)`
+   * re-sequence : `e1 e1`
+   * episods : `-> e1 (restart x 2)`
+   * re-sequence : `e2`
+
+ * Seq 2 : `abcabcabcabcLLLOOOLLLdefdefdefdefLLLOOOLLL`
+   * episods : 
+     *  `-> a b c (restart x 4)`
+     *  `-> L (restart x 3)`
+     *  `-> O (restart x 3)`
+     *  `-> L (restart x 3)`
+     *  `-> d e f (restart x 4)`
+     *  `-> L (restart x 3)`
+     *  `-> O (restart x 3)`
+     *  `-> L (restart x 3)`
+   *  Findings : `e1 ~ e4` -> put in the same episod
+      *  `e1 / e4 --> (a|d) (b|e) (c|f) (restart x 4) --> ee14`
+   * re-sequence : `ee14 e2 e3 e2 ee14 e2 e3 e2`
+   * episods : 
+     * `-> ee14 e2 e3 e2 (restart x 2)`
+   * re-sequence : `E1`
+
+When trying to find equals episods it is important to look at the content and structure of those epidods. When joining them, we can add the two in a common network.
+
+One first algorithm to do this could be the following:
+``` python
+  def analyse(sequence):
+    history = list()
+    while len(sequence) > 1:
+      episods = find_episodes(sequence)
+      sequence = rewrite(sequence, episods)
+      history.append((episods,sequence))
+    return history
+```
