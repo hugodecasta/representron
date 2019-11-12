@@ -120,3 +120,37 @@ One first algorithm to do this could be the following:
       history.append((episods,sequence))
     return history
 ```
+
+### Finding episods
+
+In order to find episods, the system can generate the augmented network representing the sequence. While generating this network it has to reduce the size of it by using switches by frequence.
+
+Those switches work like stack with rules.
+
+ * sequence : `abcabcabcLLLOLLL`
+   * `a` :
+     * `-> b`
+     * `-> b`
+     * `-> b`
+   * `c` :
+     * `-> a`
+     * `-> a`
+     * `-> L`
+
+All node with a redondant stack or linear stack is a direct node. Here `a` is direct has every time it is encountered it goes to `b`.
+
+An episod's ending node is a node with a unlinear stack. One first algorithm to detect episods could be the following:
+``` python
+  def get_epsiods(network):
+
+    episods = list()
+    current_episod = null_episod()
+
+    for node in network:
+      current_episod.append(node)
+      
+      if not node.is_direct:
+        episods.append(current_episod)
+        current_episod = null_episod()
+
+```
