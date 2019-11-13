@@ -148,9 +148,31 @@ An episod's ending node is a node with a unlinear stack. One first algorithm to 
 
     for node in network:
       current_episod.append(node)
-      
+
       if not node.is_direct:
         episods.append(current_episod)
         current_episod = null_episod()
 
 ```
+
+Finaly the intuitive Idea of using the stack trace of a symbol to define wether it is the end of an episod or is contained is an episod is not relevant. Example with the sequence : `abcabcabcLLLOaOLLL`. The face that `a` can be alone does not mean that `abc` is not an episod.
+
+### Another approach
+
+Let's try the fondamental aspect of sequence analysis by ooking at each symbol in the sequence and storing recurrent episods.
+
+ * Seq : `abcabcLLOaOLLabcabc`
+   * episods :
+     * `ab` x 4
+     * `bc` x 4
+     * `ca` x 2
+     * `cL` x 2
+     * `LL` x 2
+     * ...
+     * `abc` x 4
+     * `bca` x 2
+     * ...
+     * `abca` x 2
+     * `abca` x 2
+
+The question here is to find define what is a pertinent episod in order to keep only interesting episods.
