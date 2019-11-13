@@ -166,13 +166,15 @@ Let's try the fondamental aspect of sequence analysis by ooking at each symbol i
      * `ab` x 4
      * `bc` x 4
      * `ca` x 2
-     * `cL` x 2
-     * `LL` x 2
      * ...
      * `abc` x 4
      * `bca` x 2
      * ...
      * `abca` x 2
      * `abca` x 2
+     * ...
+     * `abcabc` x 2
 
-The question here is to find define what is a pertinent episod in order to keep only interesting episods.
+The question here is to find define what is a pertinent episod in order to keep only interesting episods. First, let's build a script creating all those episods.
+
+The goal here is to delete episods having a "representative" in same or higher occurance counter. Example `ab` x 4 has a higher representative `abc` so `ab` is not a usefull episod. On an other hand a bigger episod appearing more and containing only this episod is just another assembly that can be seen in a higher analysis later. Example `abcabc` x 2 is not usefull visavi `abc` x 4 because it is an assembly of it and not a representative. In a later analysis, after the sequence rewriting, `abcabc` will be rewritter as `AA`.
