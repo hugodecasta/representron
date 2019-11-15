@@ -178,3 +178,23 @@ Let's try the fondamental aspect of sequence analysis by ooking at each symbol i
 The question here is to find define what is a pertinent episod in order to keep only interesting episods. First, let's build a script creating all those episods.
 
 The goal here is to delete episods having a "representative" in same or higher occurance counter. Example `ab` x 4 has a higher representative `abc` so `ab` is not a usefull episod. On an other hand a bigger episod appearing more and containing only this episod is just another assembly that can be seen in a higher analysis later. Example `abcabc` x 2 is not usefull visavi `abc` x 4 because it is an assembly of it and not a representative. In a later analysis, after the sequence rewriting, `abcabc` will be rewritter as `AA`.
+
+### Finding/comparing episods
+
+One important step is finding episods and comparing them. In order to do that, the system has to find relevant episods (maybe using the old technic) then merge them to find correlation/rules linking them.
+
+A set of possible correlation rule will be given to the system to look for.
+
+ * Seq : `abcLLOaOLLabc`
+ * episods : `abc`, `LLO <--> OLL`, `a`
+ * rewriting : `0,1,2,1r,0`
+ * episods : `0,1 <--> 1r,0`, `2`
+ * rewriting : `0,1,0r`
+
+Maybe one of the good thing to do is identify episods separatly and after emit rules to link them in the sequence. Here the problem is that episod `0` of the second rewriting is ambiguous as it contains one `1` and the other is a `1r` wheras the `0`s are the same.
+
+We need a way to fix this problem but still keep the generalisation process. For the moment, we will consider the reversed episods as distinct from the orginial ones.
+
+A lot of episod rules will require to identify a source episod to refer to. For example, the reversed rule need a reference (`0` = `LLO` so the reverse is `0r`). But why would `OLL` be the reverse of `LLO` and not the reverse one ? The reason is that the first episod encountered is `LLO` so it is the source/leader of the rest. This is due to the fact that we estimate a sequence to have been written from the first symbol to the last one. If it is not the case, an ordering system will be needed to analyse symbols from their writting order.
+
+First let's build an episod system with recognition rules.
