@@ -197,4 +197,21 @@ We need a way to fix this problem but still keep the generalisation process. For
 
 A lot of episod rules will require to identify a source episod to refer to. For example, the reversed rule need a reference (`0` = `LLO` so the reverse is `0r`). But why would `OLL` be the reverse of `LLO` and not the reverse one ? The reason is that the first episod encountered is `LLO` so it is the source/leader of the rest. This is due to the fact that we estimate a sequence to have been written from the first symbol to the last one. If it is not the case, an ordering system will be needed to analyse symbols from their writting order.
 
-First let's build an episod system with recognition rules.
+Once an episod has been identified has part of a rule from an other episod, it is deleted an replaced by this rule. Finally a sequence can be rewritten as a set of rules.
+
+ * rules:
+   * writting : writte a sequence / episod
+   * copy : copy a rule
+   * inverse : inverse a rule
+
+* Seq : `abLLOabOLLab`
+  * identified rules:
+    * `0` : `write(ab)`
+    * `1` : `write(LLO)`
+    * `2` : `copy(0)`
+    * `3` : `inverse(1)`
+  * rewritting : `01232`
+
+In this form we can note that copying an element is very important and interesting. Later, if a new sequence appears, we can rewrite the rule `0` using a markov chain but still understand that we have to copy the generated sequence and not only re-use the generator wich might regenerate a different sequence.
+
+But with this rewritting, we kind of lose the higher abstraction representation where `LLO` and `OLL` could be seen has the same episod. It would be good to have a higher representation inclusing this similarity so we could see `01010` instead of `O1232`. One solution could be to process episod on the content of the sequence but keep the ruling sequence as a second sequence and maybe also try to do episod processing on this sequence !
